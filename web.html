@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ark — before the flood</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128330;</text></svg>">
+<style>
+:root{
+  --paper:#f1e8d3; --card:#fbf6e9; --ink:#22334a; --mut:#82715a; --line:#d9c9a4;
+  --navy:#1f3a5f; --sea:#2c4d74; --deep:#16293f; --olive:#5a7d3f; --good:#3c7a4d; --bad:#a8402f;
+  --brass:#9c7a2c; --serif:Georgia,"Iowan Old Style","Palatino Linotype",serif;
+  --mono:ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);font:15px/1.6 var(--serif);background:var(--paper);
+  background-image:
+    repeating-linear-gradient(0deg,rgba(120,90,40,.028) 0 1px,transparent 1px 3px),
+    repeating-linear-gradient(90deg,rgba(120,90,40,.02) 0 1px,transparent 1px 4px),
+    radial-gradient(1200px 500px at 50% -10%,rgba(255,252,240,.9),transparent 70%);
+  padding-bottom:130px}
+.wrap{max-width:1040px;margin:0 auto;padding:30px 22px 40px;position:relative;z-index:1}
+header{text-align:center;margin-bottom:26px}
+h1{font-size:44px;margin:0;letter-spacing:.02em;font-weight:600}
+h1 .anchor{color:var(--brass)}
+.sub{color:var(--mut);font-style:italic;font-size:15px;margin-top:2px}
+.rule{height:1px;background:linear-gradient(90deg,transparent,var(--line) 20%,var(--line) 80%,transparent);margin:14px auto 0;max-width:520px;position:relative}
+.rule::after{content:"\2693";position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--paper);padding:0 12px;color:var(--brass);font-size:14px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:20px 22px;margin-bottom:18px;
+  box-shadow:0 1px 0 #fff inset,0 3px 14px -8px rgba(80,60,20,.35)}
+.stt{font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--brass);font-weight:700;margin:0 0 12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input[type=text]{flex:1;min-width:250px;background:#fffdf6;border:1px solid var(--line);border-radius:4px;color:var(--ink);padding:10px 12px;font:13px var(--mono)}
+input[type=text]:focus{outline:none;border-color:var(--navy)}
+button{background:var(--card);border:1px solid var(--navy);color:var(--navy);border-radius:4px;padding:10px 18px;font:600 14px var(--serif);cursor:pointer;letter-spacing:.01em}
+button:hover{background:#eee2c4}
+button.primary{background:var(--navy);color:#f4ead2}
+button.primary:hover{background:#28497a}
+button small{display:block;font-weight:400;font-size:10.5px;color:inherit;opacity:.75;letter-spacing:.05em}
+label.chk{color:var(--mut);font-size:13px;display:flex;gap:7px;align-items:center;cursor:pointer;font-style:italic}
+.hint{color:var(--mut);font-size:12.5px;margin-top:10px;font-style:italic}
+#log{background:var(--deep);border:1px solid #0d1a29;border-radius:5px;padding:12px 14px;font:12px/1.7 var(--mono);
+  height:180px;overflow-y:auto;white-space:pre-wrap;color:#c8d9ec;display:none;margin-top:14px;
+  box-shadow:0 2px 10px -4px rgba(10,20,35,.5) inset}
+#log::before{content:"— ship's log —";display:block;color:#6d87a5;letter-spacing:.2em;font-size:10px;margin-bottom:6px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+td,th{padding:8px 9px;border-bottom:1px solid #e9ddc0;text-align:left;vertical-align:top}
+th{color:var(--mut);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.14em}
+td.num{font-family:var(--mono);text-align:right;white-space:nowrap;font-size:12.5px}
+.bar{height:5px;border-radius:2px;background:#e7dabb;overflow:hidden;margin-top:5px}
+.bar i{display:block;height:100%;background:var(--sea)}
+.bar.save i{background:var(--olive)}
+.tag{display:inline-block;font-size:10.5px;padding:1px 9px;border-radius:3px;border:1px solid var(--olive);color:var(--olive);margin-left:6px;letter-spacing:.08em;font-style:italic}
+.catmeaning{color:var(--mut);font-size:11.5px;font-style:italic}
+.big{font-size:30px;font-weight:700;color:var(--good)}
+.ok{color:var(--good)} .bad{color:var(--bad)}
+.check{font-size:13.5px;line-height:2}
+.check .ok::before{content:"\2713  "} .check .bad::before{content:"\2717  "}
+.verdict{font-size:20px;font-weight:600;padding:12px 0 4px}
+.rainbow{height:5px;border-radius:3px;margin-top:8px;
+  background:linear-gradient(90deg,#b0432f,#cf7f2e,#c9a92c,#4f7d3c,#2f5f8f,#5d4a7e)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}}
+.filelist{font:11.5px/1.75 var(--mono);color:var(--mut);max-height:210px;overflow:auto}
+.filelist b{color:var(--ink);font-weight:600}
+#spin{display:none;color:var(--navy);font-style:italic}
+#spin.on{display:inline}
+.mine{background:#f6e3d3;border:1px solid #dbb28a;border-radius:4px;padding:8px 12px;margin:8px 0;font-size:13px}
+/* ---- the flood ---- */
+.sea{position:fixed;left:0;right:0;bottom:0;height:92px;z-index:0;pointer-events:none;
+  background:linear-gradient(var(--sea),var(--deep))}
+.sea::before{content:"";position:absolute;top:-13px;left:0;right:0;height:14px;background-size:140px 14px;background-repeat:repeat-x;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='14' viewBox='0 0 140 14'%3E%3Cpath d='M0,9 C25,0 45,16 70,9 C95,2 115,16 140,9 L140,14 L0,14 Z' fill='%232c4d74'/%3E%3C/svg%3E");
+  animation:drift 16s linear infinite}
+.sea::after{content:"";position:absolute;top:-5px;left:0;right:0;height:14px;background-size:180px 14px;background-repeat:repeat-x;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='14' viewBox='0 0 180 14'%3E%3Cpath d='M0,8 C30,16 60,0 90,8 C120,16 150,0 180,8 L180,14 L0,14 Z' fill='%23223f61'/%3E%3C/svg%3E");
+  animation:drift 22s linear infinite reverse}
+@keyframes drift{to{background-position-x:140px}}
+.boat{position:fixed;bottom:74px;right:9%;z-index:0;animation:bob 5.5s ease-in-out infinite;pointer-events:none}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-1.2deg)}50%{transform:translateY(-7px) rotate(1.4deg)}}
+@media (prefers-reduced-motion:reduce){.sea::before,.sea::after,.boat{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1><span class="anchor">&#9875;</span> ark</h1>
+  <div class="sub">the flood is coming &mdash; board everything that cannot come back</div>
+  <div class="rule"></div>
+</header>
+
+<div class="panel">
+  <p class="stt">Survey the land</p>
+  <div class="row">
+    <input type="text" id="path" placeholder="C:\path\to\the\doomed\codebase" spellcheck="false">
+    <button class="primary" onclick="act('scan')">Survey<small>read-only scan</small></button>
+    <button onclick="act('status')">Safe to disembark?<small>delete checklist</small></button>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <input type="text" id="out" placeholder="where to build the ark (default: <name>-ark beside it)" spellcheck="false">
+    <label class="chk"><input type="checkbox" id="hashsrc"> fingerprint every plank (sha-256 whole source — slow)</label>
+    <button onclick="act('build')">Board the ark<small>build the salvage</small></button>
+    <button onclick="act('verify')">Send the dove<small>verify a built ark</small></button>
+  </div>
+  <div class="hint">The survey touches nothing. Boarding copies every irreplaceable file into the ark — two manifests seal it. The dove returns with an olive leaf if the backup is intact. <span id="spin">&#9203; at work&hellip;</span></div>
+  <div id="log"></div>
+</div>
+
+<div id="scanP" class="panel" style="display:none">
+  <p class="stt">The survey — <span id="scanRoot"></span></p>
+  <div class="grid2">
+    <div><table id="catT"></table></div>
+    <div>
+      <div class="verdict">boards the ark: <span class="big" id="saveB"></span></div>
+      <div id="gitF" class="check"></div>
+      <div id="mines"></div>
+      <div id="bigWrap" style="display:none">
+        <p class="stt" style="margin-top:18px">Heaviest cargo</p>
+        <div class="filelist" id="bigF"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="buildP" class="panel" style="display:none">
+  <p class="stt">The ark is built</p>
+  <div id="buildR" class="check"></div>
+</div>
+
+<div class="grid2">
+  <div id="verifyP" class="panel" style="display:none">
+    <p class="stt">The dove returns</p>
+    <div id="verifyR" class="check"></div>
+  </div>
+  <div id="statusP" class="panel" style="display:none">
+    <p class="stt">Safe to disembark?</p>
+    <div id="statusR" class="check"></div>
+  </div>
+</div>
+</div>
+
+<div class="sea"></div>
+<svg class="boat" width="74" height="46" viewBox="0 0 74 46" aria-hidden="true">
+  <rect x="26" y="6" width="22" height="14" rx="2" fill="#6b4c26"/>
+  <rect x="30" y="10" width="5" height="5" rx="1" fill="#f1e8d3"/>
+  <rect x="39" y="10" width="5" height="5" rx="1" fill="#f1e8d3"/>
+  <path d="M4,20 L70,20 L60,38 Q37,44 14,38 Z" fill="#8a6430"/>
+  <path d="M4,20 L70,20 L67,26 L7,26 Z" fill="#75521f"/>
+</svg>
+
+<script>
+const $=id=>document.getElementById(id);
+const human=n=>{const u=["B","KB","MB","GB","TB"];let i=0;while(n>=1024&&i<4){n/=1024;i++}return (i?n.toFixed(1):n)+" "+u[i]};
+let polling=null;
+
+async function act(kind){
+  const body={path:$("path").value.trim()};
+  if(kind==="build"){body.out=$("out").value.trim();body.hash_source=$("hashsrc").checked;
+    if(!confirm("Board the ark now?\nEvery irreplaceable file will be copied to:\n"+(body.out||"<name>-ark beside the source")))return;}
+  if(kind==="verify") body.ark=$("out").value.trim()||prompt("Path of the ark to verify:");
+  if(kind==="status") body.ark=$("out").value.trim();
+  const r=await fetch("/api/"+kind,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  const j=await r.json();
+  if(j.err){alert(j.err);return}
+  $("log").style.display="block";$("log").textContent="";$("spin").className="on";
+  if(!polling) polling=setInterval(poll,900);
+}
+
+async function poll(){
+  const s=await (await fetch("/api/state")).json();
+  if(s.job){$("log").textContent=s.job.log.join("\n");$("log").scrollTop=1e9;
+    if(s.job.state!=="running"){$("spin").className="";
+      if(s.job.state==="error") $("log").textContent+="\nERROR: "+s.job.error;}}
+  if(s.scan) drawScan(s.scan);
+  if(s.build) drawBuild(s.build);
+  if(s.verify) drawVerify(s.verify);
+  if(s.status) drawStatus(s.status);
+}
+
+function drawScan(d){
+  $("scanP").style.display="block";
+  $("scanRoot").textContent=d.root+" · "+d.files.toLocaleString()+" files · "+d.seconds+"s";
+  const max=Math.max(...Object.values(d.categories).map(c=>c.bytes),1);
+  const SAVE=new Set(["secrets","weights_local","outputs","archives","data"]);
+  $("catT").innerHTML="<tr><th>manifest</th><th style='text-align:right'>files</th><th style='text-align:right'>size</th></tr>"+
+    Object.entries(d.categories).map(([k,c])=>`<tr><td><b>${k}</b>${SAVE.has(k)?'<span class="tag">aboard</span>':''}<div class="bar ${SAVE.has(k)?'save':''}"><i style="width:${Math.max(2,100*c.bytes/max)}%"></i></div><div class="catmeaning">${c.label}</div></td><td class="num">${c.files.toLocaleString()}</td><td class="num">${human(c.bytes)}</td></tr>`).join("");
+  $("saveB").textContent=human(d.save.bytes)+" / "+d.save.files.toLocaleString()+" files";
+  const g=d.git;
+  $("gitF").innerHTML=g.is_repo?
+    line(g.remotes.length>0,"code has a harbor: "+(g.remotes[0]||"NO REMOTE"))+
+    line(g.ahead===0,"pushed (ahead "+g.ahead+")")+
+    line(g.uncommitted===0,g.uncommitted+" uncommitted change(s)")+
+    line(g.untracked_loose.length===0,g.untracked_loose.length+" loose file(s) — a git clean drowns them")
+    :line(false,"NOT a git repo — this ark becomes the only copy");
+  const mines=(g.gitlinks||[]).filter(x=>!x.in_gitmodules);
+  $("mines").innerHTML=mines.map(m=>`<div class="mine">&#9888; <b>hull breach:</b> <code>${m.path}</code> is a gitlink with no .gitmodules — a clone restores an EMPTY dir (origin: ${m.origin||"unknown"})</div>`).join("")+
+    (d.nested_repos||[]).map(n=>`<div class="catmeaning">vessel within the vessel: ${n.path} → ${n.origin||"<b class='bad'>no remote!</b>"}</div>`).join("");
+  const big=(d.biggest||[]).slice(0,14);
+  $("bigWrap").style.display=big.length?"block":"none";
+  $("bigF").innerHTML=big.map(e=>`<div><b>${human(e.s)}</b> [${e.cat}] ${e.p}</div>`).join("");
+}
+const line=(ok,txt)=>`<div class="${ok?'ok':'bad'}">${txt}</div>`;
+
+function drawBuild(b){
+  $("buildP").style.display="block";
+  const c=b.steps.copy||{},bu=b.steps.bundle;
+  $("buildR").innerHTML=
+    line(!!bu&&bu.verified,bu?("hull: "+bu.path+(bu.uncommitted_patch?" + uncommitted.patch":"")):"no git bundle (not a repo)")+
+    line(c.error_count===0,`boarded ${c.files} files / ${human(c.bytes)}${c.error_count?` — ${c.error_count} left behind (see ark-report.json)`:""}`)+
+    line(true,"restore-hints + capsule + selfcheck manifests sealed")+
+    `<div class="hint">the ark rests at: ${b.out} · ${b.seconds}s</div>`;
+}
+function drawVerify(v){
+  $("verifyP").style.display="block";
+  $("verifyR").innerHTML=line(v.ok,`${v.identical} identical · ${v.changed} changed · ${v.missing} missing`)+
+    (v.ok?'<div class="ok verdict">&#128330; the dove returns with an olive leaf — BACKUP INTACT</div>'
+         :'<div class="bad verdict">&#127783; the dove found nothing — BACKUP DAMAGED, rebuild it</div>');
+}
+function drawStatus(s){
+  $("statusP").style.display="block";
+  $("statusR").innerHTML=s.checks.map(c=>line(c.ok,c.name+(c.detail?" — "+c.detail:""))).join("")+
+    (s.safe?'<div class="verdict ok">&#127752; the waters have receded — SAFE TO DELETE</div><div class="rainbow"></div>'
+          :'<div class="verdict bad">&#127783; still raining — NOT SAFE YET</div>');
+}
+poll();setInterval(poll,2500);
+</script>
+</body>
+</html>
